@@ -79,6 +79,46 @@ if [ $1 = "base" ];
   exit 0
 fi
 
+# Build base image
+if [ $1 = "dh" ];
+  then
+  title "Building Docker/Heroku Image"
+  cp docker-heroku/Dockerfile Dockerfile
+  PROJECT_NAME=$FULL_PROJECT_NAME-docker-heroku
+  docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
+  check_status "Building Docker Heroku Image"
+  rm Dockerfile
+  if [ $2 ];
+  then
+    if [ $2 = "deploy" ];
+    then
+      title "Pushing Docker-Heroku Image"
+      docker push $DOCKER_HUB_USERNAME/$PROJECT_NAME
+    fi
+  fi
+  exit 0
+fi
+
+# Build base image
+if [ $1 = "pupp" ];
+  then
+  title "Building Docker/Heroku Image"
+  cp puppeteer/Dockerfile Dockerfile
+  PROJECT_NAME=$FULL_PROJECT_NAME-puppeteer
+  docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
+  check_status "Building Docker Heroku Image"
+  rm Dockerfile
+  if [ $2 ];
+  then
+    if [ $2 = "deploy" ];
+    then
+      title "Pushing Puppeteer Image"
+      docker push $DOCKER_HUB_USERNAME/$PROJECT_NAME
+    fi
+  fi
+  exit 0
+fi
+
 # If got to here, the image wasn't dev or base and error should be thrown
 echo "Image ${bold}${cyan}$1${reset} doesn't exist"
 exit 1
