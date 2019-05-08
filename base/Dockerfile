@@ -1,9 +1,9 @@
-FROM python:3.7.2-slim
+FROM python:3.7.3-slim
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
-ENV NODE_VERSION 10.15.0
+ENV NODE_VERSION 12.1.0
 
 RUN buildDeps='xz-utils' \
     && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
@@ -45,7 +45,7 @@ RUN buildDeps='xz-utils' \
     && apt-get purge -y --auto-remove $buildDeps \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-ENV YARN_VERSION 1.12.3
+ENV YARN_VERSION 1.15.2
 
 RUN set -ex \
   && for key in \
@@ -64,6 +64,6 @@ RUN set -ex \
   && ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
   && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz
 
-RUN npm install -global npm@6.6.0
+RUN npm install -global npm@6.9.0
 
 CMD ["bash"]

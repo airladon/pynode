@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
-PYTHON_VER=3.7.2
-NODE_VER=10.15.0
-NPM_VER=6.6.0
+PYTHON_VER=3.7.3
+NODE_VER=12.1.0
+NPM_VER=6.9.0
+YARN_VER=1.15.2
 
 PROJECT_NAME=pynode
 FULL_PROJECT_NAME=${PROJECT_NAME}:python${PYTHON_VER}-node${NODE_VER}-npm${NPM_VER}
@@ -53,6 +54,13 @@ if [ -z "${1}" ];
   exit 1
 fi
 
+updateDockerFile() {
+  cp $1/Dockerfile DockerfileTemp
+  sed "s/FROM .*/FROM ${DOCKER_HUB_USERNAME}\/${FULL_PROJECT_NAME}/" \
+      < DockerfileTemp > Dockerfile
+  rm DockerfileTemp
+}
+
 
 # Build base image
 if [ $1 = "base" ];
@@ -62,6 +70,7 @@ if [ $1 = "base" ];
   sed "s/FROM python:.*/FROM python:${PYTHON_VER}-slim/" \
       < DockerfileTemp | \
       sed "s/ENV NODE_VERSION.*/ENV NODE_VERSION ${NODE_VER}/" | \
+      sed "s/ENV YARN_VERSION.*/ENV YARN_VERSION ${YARN_VER}/" | \
       sed "s/RUN npm install -global npm@.*/RUN npm install -global npm@${NPM_VER}/" > Dockerfile
   rm DockerfileTemp
   docker build -t $DOCKER_HUB_USERNAME/$FULL_PROJECT_NAME .
@@ -83,7 +92,7 @@ fi
 if [ $1 = "dh" ];
   then
   title "Building Docker/Heroku Image"
-  cp docker-heroku/Dockerfile Dockerfile
+  updateDockerFile "docker-heroku"
   PROJECT_NAME=$FULL_PROJECT_NAME-docker-heroku
   docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
   check_status "Building Docker Heroku Image"
@@ -103,7 +112,7 @@ fi
 if [ $1 = "pupp" ];
   then
   title "Building Docker/Heroku Image"
-  cp puppeteer/Dockerfile Dockerfile
+  updateDockerFile "puppeteer"
   PROJECT_NAME=$FULL_PROJECT_NAME-puppeteer
   docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
   check_status "Building Docker Heroku Image"

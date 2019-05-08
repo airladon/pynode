@@ -19,9 +19,70 @@ This will build a local image called pynode:python3.7.2-node10.15.0-npm6.6.0 ass
 Also, a pynode:latest container will be created.
 
 #### To run container to test
-`docker run -it pynode:latest bash`
+`docker run -it ${DOCKER_HUB_USERNAME}/pynode:latest bash`
 
 #### To build and push to docker hub:
 ./build.sh base deploy
 
 Only the explicit version container will be pushed up.
+
+
+#### Images
+There are three images managed here:
+* Base - the base python, node, npm image
+* Docker-heroku - Base image with docker and heroku installed on it
+* Puppeteer - Base image with puppeteer installed on it
+
+So, if updating python, node and/or npm and you want to update all images then:
+
+* In build.sh file, update PYTHON_VER, NODE_VER, NPM_VER and YARN_VER to be the wanted versions.
+* build each image
+```
+./build.sh base deploy
+./build.sh dh deploy
+./build.sh pupp deploy
+```
+
+
+#### Other useful docker commands:
+
+##### See main images:
+```
+docker images
+```
+
+##### See all images:
+```
+docker images -a
+```
+
+##### See running containers:
+```
+docker ps
+```
+
+##### See all containers:
+```
+docker ps -a
+```
+
+##### Remove container
+```
+docker rm CONTAINTER_ID
+docker rm CONTAINTER_NAME
+```
+
+##### Remove all exited containers:
+```
+docker rm `docker ps -aq --no-trunc --filter "status=exited"`
+```
+
+##### Remove all unused images:
+```
+docker system prune -a
+```
+
+##### Remove all untagged images:
+```
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+```
