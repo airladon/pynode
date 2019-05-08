@@ -36,11 +36,11 @@ RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
 
 WORKDIR /home/pptruser
 
-RUN chown root:root /node_modules/puppeteer/.local-chromium/linux-624492/chrome-linux/chrome_sandbox
-RUN chmod 4755 /node_modules/puppeteer/.local-chromium/linux-624492/chrome-linux/chrome_sandbox
+RUN chown root:root /node_modules/puppeteer/.local-chromium/linux-650583/chrome-linux/chrome_sandbox
+RUN chmod 4755 /node_modules/puppeteer/.local-chromium/linux-650583/chrome-linux/chrome_sandbox
 
 # copy sandbox executable to a shared location
-RUN cp -p /node_modules/puppeteer/.local-chromium/linux-624492/chrome-linux/chrome_sandbox /usr/local/sbin/chrome-devel-sandbox
+RUN cp -p /node_modules/puppeteer/.local-chromium/linux-650583/chrome-linux/chrome_sandbox /usr/local/sbin/chrome-devel-sandbox
 
 # export CHROME_DEVEL_SANDBOX env variable
 ENV CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
