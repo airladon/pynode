@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
-PYTHON_VER=3.7.3
-NODE_VER=12.1.0
-NPM_VER=6.9.0
-YARN_VER=1.15.2
+PYTHON_VER=3.8.1
+NODE_VER=12.16.0
+NPM_VER=6.13.7
+YARN_VER=1.22.0
+PUPP_VER=1.20.0
+CHROME_VER=79.0.3921.0
+DOCKER_VER=19.03.2
+HEROKU_VER=7.30.1
 
 PROJECT_NAME=pynode
 FULL_PROJECT_NAME=${PROJECT_NAME}:python${PYTHON_VER}-node${NODE_VER}-npm${NPM_VER}
@@ -45,6 +49,12 @@ title() {
   echo "${cyan}${bold}"$(nchars "=" $NUM_CHARS) $1 $(nchars "=" $NUM_CHARS)"${reset}"
 }
 ###############################################################################
+
+# Check DOCKER_HUB_USERNAME is set as an environment variable
+if [ -z $DOCKER_HUB_USERNAME ];
+then
+  echo "${bold}${red}DOCKER_HUB_USERNAME environment variable not set"
+fi
 
 # Check there is something to build
 if [ -z "${1}" ];
@@ -93,7 +103,11 @@ if [ $1 = "dh" ];
   then
   title "Building Docker/Heroku Image"
   updateDockerFile "docker-heroku"
-  PROJECT_NAME=$FULL_PROJECT_NAME-docker-heroku
+  PROJECT_NAME=$FULL_PROJECT_NAME-docker$DOCKER_VER-heroku$HEROKU_VER
+  if [ $2 = "test" ];
+  then
+    PROJECT_NAME=dh-test
+  fi
   docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
   check_status "Building Docker Heroku Image"
   rm Dockerfile
@@ -113,7 +127,11 @@ if [ $1 = "pupp" ];
   then
   title "Building Docker/Heroku Image"
   updateDockerFile "puppeteer"
-  PROJECT_NAME=$FULL_PROJECT_NAME-puppeteer
+  PROJECT_NAME=$FULL_PROJECT_NAME-puppeteer${PUPP_VER}-chrome${CHROME_VER}
+  if [ $2 = "test" ];
+  then
+    PROJECT_NAME=pupp-test
+  fi
   docker build -t $DOCKER_HUB_USERNAME/$PROJECT_NAME .
   check_status "Building Docker Heroku Image"
   rm Dockerfile

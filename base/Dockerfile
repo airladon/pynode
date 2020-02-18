@@ -1,12 +1,14 @@
-FROM python:3.7.3-slim
+FROM python:3.8.1-slim
 
+# ################
+# NODE PASTE START
+# ################
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
 
-ENV NODE_VERSION 12.1.0
+ENV NODE_VERSION 12.16.0
 
-RUN buildDeps='xz-utils' \
-    && ARCH= && dpkgArch="$(dpkg --print-architecture)" \
+RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x64';; \
       ppc64el) ARCH='ppc64le';; \
@@ -17,7 +19,7 @@ RUN buildDeps='xz-utils' \
       *) echo "unsupported architecture"; exit 1 ;; \
     esac \
     && set -ex \
-    && apt-get update && apt-get install -y ca-certificates curl wget gnupg dirmngr $buildDeps --no-install-recommends \
+    && apt-get update && apt-get install -y ca-certificates curl wget gnupg dirmngr xz-utils --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && for key in \
       94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
@@ -42,12 +44,15 @@ RUN buildDeps='xz-utils' \
     && grep " node-v$NODE_VERSION-linux-$ARCH.tar.xz\$" SHASUMS256.txt | sha256sum -c - \
     && tar -xJf "node-v$NODE_VERSION-linux-$ARCH.tar.xz" -C /usr/local --strip-components=1 --no-same-owner \
     && rm "node-v$NODE_VERSION-linux-$ARCH.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
-    && apt-get purge -y --auto-remove $buildDeps \
+    && apt-mark auto '.*' > /dev/null \
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-ENV YARN_VERSION 1.15.2
+ENV YARN_VERSION 1.22.0
 
 RUN set -ex \
+  && apt-get update && apt-get install -y ca-certificates curl wget gnupg dirmngr --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
   && for key in \
     6A010C5166006599AA17F08146C2130DFD2497F5 \
   ; do \
@@ -62,8 +67,13 @@ RUN set -ex \
   && tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/ \
   && ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn \
   && ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg \
-  && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz
+  && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
+  && apt-mark auto '.*' > /dev/null \
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
 
-RUN npm install -global npm@6.9.0
+# ################
+# NODE PASTE END
+# ################
+RUN npm install -global npm@6.13.6
 
 CMD ["bash"]

@@ -1,4 +1,4 @@
-FROM airladon/pynode:python3.7.2-node10.15.0-npm6.6.0
+FROM airladon/pynode:python3.7.4-node12.10.0-npm6.11.3
 
 # Docker
 RUN apt-get update && \

@@ -41,6 +41,68 @@ docker login
 * Find new number and update docker file
 * ./build pupp
 
+#### Updating Dockerfiles
+
+##### Base Image
+In base/Dockerfile
+
+* update python version in line 1
+* Copy and paste the "node 12.10.0-strech-slim" dockerfile contents from docker hub, between the NODE PASTE marks in base/Dockerfile (often just updating the NPM and YARN version numbers in the Dokerfile is sufficient)
+* Update npm version to latest number near end of file
+
+Build base image
+```
+./build.sh base deploy
+```
+
+##### Docker-Heroku Image
+Build test image for docker-heroku to get version numbers
+```
+./build.sh dh test
+docker run -it -v /var/run/docker.sock:/var/run/docker.sock \
+      $DOCKER_HUB_USERNAME/dh-test bash
+```
+
+Paste following into container prompt to get versions
+```
+echo -e "DOCKER_VER=`docker version | grep -A 1 "Client: Docker Engine - Community" | grep Version | sed 's/ *Version: *//'`\nHEROKU_VER=`heroku version | sed 's/heroku\///' | sed 's/ .*//'`"
+```
+Exit container
+
+Paste version numbers into top of ./build.sh file replacing existing ones.
+
+Build actual image for docker-heroku
+```
+./build.sh dh deploy
+```
+
+##### Chrome-Puppeteer Image
+
+Update line one of puppeteer/Dockerfile
+Update packages in puppeteer/package.json
+
+Build test image for chrome-Puppeteer to get version numbers
+```
+./build.sh pupp test
+docker run -it $DOCKER_HUB_USERNAME/pupp-test bash
+```
+
+Paste following into container prompt to get chrome version
+```
+cd /
+echo -e "PUPP_VER=`npm list --silent | grep puppeteer | sed 's/.*puppeteer@//'` \nCHROME_VER=`google-chrome --version | sed 's/Google Chrome //' | sed 's/ .*//'`"
+```
+Exit container
+
+Paste version numbers into top of ./build.sh file replacing existing ones.
+
+Build actual image for docker-heroku
+```
+./build.sh dh deploy
+```
+
+
+
 
 #### Output
 This will build a local image called pynode:python3.7.2-node10.15.0-npm6.6.0 assuming python, node and npm versions were 3.7.2, 10.15.0 and 6.6.0 in build.sh.
