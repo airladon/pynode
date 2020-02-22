@@ -96,9 +96,9 @@ Exit container
 
 Paste version numbers into top of ./build.sh file replacing existing ones.
 
-Build actual image for docker-heroku
+Build actual image for docker-chrome-pupp
 ```
-./build.sh dh deploy
+./build.sh pupp deploy
 ```
 
 
